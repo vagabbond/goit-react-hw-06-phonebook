@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { addContact } from '../../redux/slicePhoneBook';
 import {
   PhonebookContainer,
   Title,
@@ -11,15 +12,12 @@ import {
   Button,
 } from './Phonebook.styled.jsx';
 
-const Phonebook = ({ onSubmit }) => {
+const Phonebook = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    onSubmit({ name, number, id: nanoid() });
-    reset();
-  };
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.persistedReducer.phoneBook);
   const reset = () => {
     setName('');
     setNumber('');
@@ -27,7 +25,24 @@ const Phonebook = ({ onSubmit }) => {
   return (
     <PhonebookContainer>
       <Title>Phonebook</Title>
-      <Form onSubmit={handleSubmit}>
+      <Form
+        onSubmit={e => {
+          e.preventDefault();
+          contacts.find(
+            el => el.name.toLocaleLowerCase() === name.toLocaleLowerCase()
+          )
+            ? alert(`${name} is already in contacts`)
+            : dispatch(
+                addContact({
+                  name,
+                  number,
+                  id: nanoid(),
+                })
+              );
+
+          reset();
+        }}
+      >
         <Label htmlFor="name">
           Name
           <Input
@@ -56,10 +71,6 @@ const Phonebook = ({ onSubmit }) => {
       </Form>
     </PhonebookContainer>
   );
-};
-
-Phonebook.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };
 
 export default Phonebook;
