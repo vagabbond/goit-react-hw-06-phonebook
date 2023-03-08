@@ -39,7 +39,6 @@ const Phonebook = () => {
                   id: nanoid(),
                 })
               );
-
           reset();
         }}
       >
